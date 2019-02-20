@@ -110,7 +110,6 @@ class App extends Component {
     return (
       <main className="App" role="main" >
 
-        <section ref="map" className="map" id="map" role="application"></section>
 
         <section className="right-column" >
           <header className="header" aria-label="Application Header">
@@ -130,6 +129,9 @@ class App extends Component {
               onSelectedVenue={this.onSelectedVenue}
             /> : null}
         </section>
+
+        <section ref="map" className="map" id="map" role="application"></section>
+
       </main>
     );
   }
