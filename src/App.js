@@ -41,8 +41,15 @@ class App extends Component {
         }, this.renderMap());
       })
       .catch(error => {
+        alert(error);
         console.log(`Error -> ${error}`)
       });
+  }
+
+  disabledAnimation = () => {
+    this.state.markerList.forEach(marker => {
+      marker.setAnimation(null);
+    });
   }
 
   initMap = () => {
@@ -52,6 +59,7 @@ class App extends Component {
     });
     let listMarker = [];
     const infowindow = new window.google.maps.InfoWindow();
+
     this.state.venues.forEach(item => {
       const venue = item.venue;
 
@@ -60,15 +68,17 @@ class App extends Component {
         map: map,
         title: venue.name,
         id: venue.id,
+        infowindow: infowindow,
         selectedMarker: () => {
+          this.disabledAnimation();
+          marker.setAnimation(window.google.maps.Animation.BOUNCE);
           infowindow.setContent(venue.name);
           infowindow.open(map, marker);
         }
       });
 
       marker.addListener('click', () => {
-        infowindow.setContent(venue.name);
-        infowindow.open(map, marker);
+        marker.selectedMarker();
       });
 
       listMarker.push(marker);
@@ -89,9 +99,21 @@ class App extends Component {
     }));
   };
 
-  onSelectedVenue = (event, item) => {
+  onSelectedVenue = (event, type, item) => {
+    if (type === 'key' && event.key !== 'Enter') {
+      return;
+    }
     item.selectedMarker();
   };
+
+  toggleMarkers = (listMarker, enabled) => {
+    this.state.markerList.forEach(marker => {
+      marker.setAnimation(null);
+      marker.setVisible(false);
+      marker.infowindow.close();
+    });
+    listMarker.forEach(marker => marker.setVisible(enabled));
+  }
 
   onUpdateQuery = (query) => {
     let workingList = [];
@@ -104,6 +126,7 @@ class App extends Component {
     this.setState({
       markerListSearch: workingList
     });
+    this.toggleMarkers(workingList, true);
   };
 
   render() {
@@ -144,7 +167,9 @@ function loadExternalJS(url) {
   script.defer = true;
   script.src = url;
   index.parentNode.insertBefore(script, index);
-
+  script.onerror = function () {
+    alert('Sorry, something goes wrong, try again later...');
+  }
 }
 
 export default App;
