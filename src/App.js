@@ -7,6 +7,7 @@ import escapeRegExp from 'escape-string-regexp'
 class App extends Component {
 
   state = {
+    showError: false,
     workingList: [],
     query: '',
     marker: [],
@@ -53,10 +54,18 @@ class App extends Component {
   }
 
   initMap = () => {
+
+    window.gm_authFailure = () => {
+      this.setState({
+        showError: true,
+      });
+    };
+
     const map = new window.google.maps.Map(document.getElementById('map'), {
       center: { lat: -23.5629, lng: -46.6544 },
       zoom: 12
     });
+
     let listMarker = [];
     const infowindow = new window.google.maps.InfoWindow();
 
@@ -130,10 +139,20 @@ class App extends Component {
   };
 
   render() {
+
+    if (this.state.showError) {
+      return (
+        <main>
+          <span className="error">
+            Something wrong with Authentication Key, please, check with the administration of this site
+          </span>
+        </main>
+      );
+    }
+
     return (
+
       <main className="App" role="main" >
-
-
         <section className="right-column" >
           <header className="header" aria-label="Application Header">
             <p>Powered by Google Maps & FourSquare</p>
